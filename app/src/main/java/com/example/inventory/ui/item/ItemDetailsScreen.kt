@@ -101,8 +101,8 @@ fun ItemDetailsScreen(
         }, modifier = modifier
     ) { innerPadding ->
         ItemDetailsBody(
-            itemDetails = uiState.value.itemDetails,
-            onSellItem = { },
+            uiState = uiState.value,
+            onSellItem = { viewModel.reduceQuantityByOne() },
             onDelete = { },
             modifier = Modifier
                 .padding(
@@ -117,7 +117,7 @@ fun ItemDetailsScreen(
 
 @Composable
 private fun ItemDetailsBody(
-    itemDetails: ItemDetails,
+    uiState: ItemDetailsUiState,
     onSellItem: () -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
@@ -129,14 +129,14 @@ private fun ItemDetailsBody(
         var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
 
         ItemDetails(
-            item = itemDetails.toItem(),
+            item = uiState.itemDetails.toItem(),
             modifier = Modifier.fillMaxWidth()
         )
         Button(
             onClick = onSellItem,
             modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.small,
-            enabled = true
+            enabled = !uiState.outOfStock
         ) {
             Text(stringResource(R.string.sell))
         }
@@ -242,7 +242,9 @@ private fun DeleteConfirmationDialog(
 fun ItemDetailsScreenPreview() {
     InventoryTheme {
         ItemDetailsBody(
-            itemDetails = ItemDetails(1, "Pen", "$100", "10"),
+            uiState = ItemDetailsUiState(
+                itemDetails = ItemDetails(1, "Pen", "$100", "10")
+            ),
             onSellItem = {},
             onDelete = {}
         )
